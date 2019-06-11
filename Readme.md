@@ -22,6 +22,7 @@
 
 * Wireframes
 
+    ![alt text](assets/images/wireframe.png)
     * There will be a board at the center
     * There will be a shooter ball at the bottom of the board in the center
     * Right sidebar will describe how to play
