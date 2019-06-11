@@ -2,9 +2,9 @@
 
 * Background and Overview
 
-    Monkey Bubble Pop is a fun game which is a clone of the classic bubble shooter game. Player has to start shooting a new bubble in a direction so as to match the color of 3 or more adjacent bubbles in order to pop them and rescue monkeys which are trapped in bubbles. The target is popping out maximum nmber of bubbles to increase the score and also rescue maximum monkeys in order to double the score.
+    Monkey Bubble Pop is a fun game which is a clone of the classic bubble shooter game. Player has to start shooting a new bubble in a direction so as to match the color of 3 or more adjacent bubbles in order to pop them and rescue monkeys which are trapped in bubbles. The target is popping out maximum nmber of bubbles to increase the score and also rescue the target number of monkeys at each level.
 
-    There are 3 levels to this game. The first level is easier as the shooter bubble will match the color of the bubbles at the lowest level so as to easily pop them. The next level will be a little harder as the shooter bubble will not necessarily match the bubbles at the lowest level but the color will match the color of bubbles which are shown in the board. The third level is even harder as the shooter ball color can be a totally different color than what is shown on the board.
+    There are 3 levels to this game. The first level is easy as the shooter bubble will match the color of the bubbles at the lowest level so as to easily pop them. The next level will be a little harder as the shooter bubble will not necessarily match the bubbles at the lowest level but the color will match the color of bubbles which are shown in the board. The third level is even harder as the board generated will not have many adjacent balls of same color.
 
 * Functionality and MVP Features
 
@@ -14,11 +14,11 @@
     * See the number of moves allowed at every level
     * See the target number of monkeys to be rescued
     * Able to see the next shooter bubble in the queue
-    * Hear sound on popping of bubbles
-    * Mute the sound
+    * Receive an alert if the game is over
+    * Receive an alert if the player has moved to the next level
 
     * When a group of bubbles is popped, the loose bubbles below that group should pop as well.
-    * The game is over if the player shoots the bubbles in a way that the lowest level bubble reaches the bottom of the board
+    * The game is over if the player shoots the bubbles in a way that the lowest level bubble reaches the bottom of the board       or the number of moves has exceeded the number of allowed moves.
 
 * Wireframes
 
@@ -64,11 +64,12 @@
         * Write game logic for level 2 and 3
 
     * Day 5
-        * Add sound for popping of bubbles
-        * Add a control to mute the music
+        * Check if all pieces of the game are working together and resolve if there are any issues
 
 * Bonus Features
 
+    * Hear sound on popping of bubbles
+    * Mute the sound
     * Show a nice HTML Canvas as a backdrop in the board matching the theme of the game
     * Different sound effects for popping bubble and rescuing a monkey
     * Add more levels to the game
