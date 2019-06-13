@@ -1,0 +1,88 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+canvas {
+    position: relative;
+    z-index: 10;
+}
+
+.canvas-box {
+    display: block;
+    margin: 0;
+    width: 480px;
+    height: 640px;
+    background: url('../../assets/images/background.jpg');
+    background-repeat: round;
+    position: relative;
+}
+
+.bubble-game {
+    display: flex;
+    justify-content: center;
+    background: #000;
+    height: 640px;
+} 
+
+.bubble-game .instructions{
+    border: 1px solid #ccc;
+    background-color: #936034;
+    height: 100%;
+    width: 100px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.bubble-game .instructions h1 {
+    font-size: 14px;
+}
+
+.monkey-shooter {
+    position: absolute;
+    bottom: 0;
+    left: 180px;
+    height: 125px;
+    width:120px;
+    overflow:hidden;
+    background: url('../../assets/images/monkey.png');
+}
+
+.score {
+    position: absolute;
+    top:10px;
+    left: 10px;
+}
+
+.level {
+    position: absolute;
+    top:10px;
+    right: 10px;
+}
+
+.text-bg {
+    background: #fff;
+    opacity: 0.7;
+    padding: 7px 7px;
+    border-radius: 5px;
+    font-weight: bold;
+    color:#1ED413;
+    font-family: 'Bungee', cursive;
+}
+
+.text-val {
+    color: #936034;
+    font-weight: 800;
+    opacity:1;
+}
+
+.next-shooter {
+    position: absolute;
+    left: 104px;
+    bottom: 0;
+    height: 77px;
+    width: 63px;
+    background: none;
+    text-shadow: 0px 0px 12px #ccc;
+    color: #000;
+}
