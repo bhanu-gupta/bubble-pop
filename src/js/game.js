@@ -2,7 +2,6 @@ import Board from './board';
 
 class Game {
     constructor(ctx, canvas) {
-        this.board = new Board(this,ctx);
         this.canvas = canvas;
         this.score = 0;
         this.level = 1;
@@ -10,37 +9,56 @@ class Game {
         this.playAngle = null;
         this.ready = false;
         this.currentMoveCount = 0;
-        this.movesAllowed = 20;
+        this.movesAllowed = 15;
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseDown = this.onMouseDown.bind(this);
         this.shooterMoving = false;
+        this.gameOver = false;
+        this.won = false;
+        this.board = new Board(this, ctx);
     }
 
     play() {
         this.makeMove();
     }
 
-    won() {
-        if (this.board.caughtBananas === this.bananaTarget) {
-            return true;
+    setGameStatus() {
+        if(this.board.bananaCount === 0) {
+            this.won = true;
+        } else if (this.currentMoveCount >= this.movesAllowed) {
+            this.gameOver = true;
+        } else if (this.board.bubbles.length >=11) {
+            this.gameOver = true;
         }
-        return false;
+        this.alertGameStatus();
     }
 
-    gameOver() {
-        if (this.board.currentMoveCount > this.movesAllowed) {
-            return true;
+    alertGameStatus() {
+        if (this.gameOver) {
+            alert('Game Over!');
+            document.location.reload();
+        } else if(this.won) {
+            alert('Congratulations! You Won');
+            document.location.reload();
         }
-        return false;
+    }
+
+    resetAfterCollision() {
+        this.setGameStatus();
+        this.board.bubbleShooter = null;
+        this.shooterMoving = false;
+        this.playAngle = null;
+    }
+
+    drawLevel() {
+
     }
 
     makeMove() {
-
         const rads = this.degToRad(this.playAngle);
         const speed = 500;
         let dx = Math.cos(rads) * speed / 60;
         let dy = Math.sin(rads) * speed / 60;
-
         var interval = setInterval(() => {
             if (this.board.bubbleShooter.x + dx <= 0) {
                 this.playAngle = 180 - this.playAngle;
@@ -49,24 +67,23 @@ class Game {
                 this.playAngle = 180 - this.playAngle;
                 dx = -dx;
             }
-
-            if (this.board.checkCollision()) {
-                this.board.bubbles.push(this.board.bubbleShooter);
-                this.board.bubbleShooter = null;
-                this.shooterMoving = false;
+            const isCollision = this.board.checkCollision();
+            if (isCollision) {
+                this.resetAfterCollision();
                 clearInterval(interval);
             } else {
                 this.board.bubbleShooter.clearArc(this.board.ctx);
                 this.board.bubbleShooter.x = this.board.bubbleShooter.x + dx;
                 this.board.bubbleShooter.y = this.board.bubbleShooter.y - dy;
             }
+            
             this.board.drawBubbleShooter();
 
         }, 1000 / 60);
     }
 
     start() {
-        this.board.render();
+        this.board.loadInitialGame();
     }
 
     radToDeg(angle) {
@@ -89,8 +106,8 @@ class Game {
             if (mouseangle < 0) {
                 mouseangle = 180 + (180 + mouseangle);
             }
-            const lbound = 8;
-            const ubound = 172;
+            const lbound = 15;
+            const ubound = 165;
             if (mouseangle > 90 && mouseangle < 270) {
                 if (mouseangle > ubound) {
                     mouseangle = ubound;
@@ -101,18 +118,19 @@ class Game {
                 }
             }
             this.playAngle = mouseangle;
+            this.drawMouseLine();
         }
     }
 
     onMouseDown(e) {
-        if (this.shooterMoving ===  false) {
+        if (this.playAngle && this.shooterMoving ===  false) {
             if(this.gameOver) {
                 this.loadNewGame();
             }
             if (this.ready) { 
                 this.shooterMoving = true;
-                this.play();
                 this.currentMoveCount += 1;
+                this.play();
             }
         }
     }
@@ -125,8 +143,21 @@ class Game {
         };
     }
 
-    loadNewGame() {
-
+    // Render the angle of the mouse
+    drawMouseLine() {
+        var centerx = 230 + this.board.bubbleDiameter / 2;
+        var centery = 550 + this.board.bubbleDiameter / 2;
+        var ctx = this.board.ctx;
+        ctx.clearRect(150, 480, 200, 90);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#fff";
+        ctx.beginPath();
+        ctx.setLineDash([5,10]);
+        ctx.moveTo(centerx, centery);
+        ctx.lineTo(
+            centerx + 2 * this.board.bubbleDiameter * Math.cos(this.degToRad(this.playAngle)),
+            centery - 2 * this.board.bubbleDiameter * Math.sin(this.degToRad(this.playAngle)));
+        ctx.stroke();
     }
 }
 

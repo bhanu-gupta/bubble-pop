@@ -19,16 +19,31 @@ var level3Colors = [
     '#616a77'
 ];
 
+var COLORS = ['red', 'orange', 'yellow', 'green', 'seagreen', 'blue', 'purple', 'pink'];
+
+var diameter = 40;
+var rowOffset = 20;
+var colOffset = 70;
+
 class Bubble {
 
-    //type = shooter, bubble, monkey
-    constructor(type, x, y, color) {
+    constructor(type, x, y, color, row, col) {
         this.removed = false;
         this.type = type;
         this.color = color || this.getRandomColour();
         this.x = x;
         this.y = y;
-        this.diameter = 40;
+        this.row = row;
+        this.col = col;
+    }
+
+    getBubbleDimensions(row, column) {
+        let bubbleX = (column * diameter) + rowOffset;
+        if(row%2 === 1) {
+            bubbleX += diameter/2;
+        }
+        let bubbleY = (row* diameter) + colOffset;
+        return {x: bubbleX, y:bubbleY};
     }
 
     draw(ctx, bubbleSprite) {
@@ -52,18 +67,17 @@ class Bubble {
         ctx.save();
         ctx.beginPath();
         ctx.globalCompositeOperation = 'destination-out';
-        ctx.clearRect(this.x, this.y, this.diameter, this.diameter);
+        ctx.clearRect(this.x, this.y, diameter, diameter);
         ctx.fill();
         ctx.restore();
     }
 
     drawBanana(ctx) {
         var bananaImg = document.createElement('img');
-        this.type= 'bananaImg';
         bananaImg.src = 'assets/images/banana.png';
         bananaImg.onload = () => {
             this.clearArc(ctx);
-            const radius = (this.diameter/2)-1;
+            const radius = (diameter/2)-1;
             ctx.arc(this.x + radius + 2, this.y + radius + 2, radius, 0, Math.PI * 2, true);
             ctx.fillStyle = "#70D434";
             ctx.fill();

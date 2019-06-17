@@ -60,6 +60,12 @@ canvas {
     right: 10px;
 }
 
+.moves {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
 .text-bg {
     background: #fff;
     opacity: 0.7;
