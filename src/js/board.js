@@ -43,7 +43,7 @@ class Board {
 
     loadInitialGame() {
         this.loadBubblesImage();
-        this.drawScore();
+        this.drawScore(0);
         this.drawMoveCount();
     }
 
@@ -104,8 +104,16 @@ class Board {
         document.getElementById("moves-val").innerHTML = this.game.movesAllowed - this.game.currentMoveCount;
     }
 
-    drawScore() {
-        document.getElementById("score-val").innerHTML = this.game.score;
+    drawScore(score) {
+        document.getElementById("score-val").innerHTML = score != undefined ? score : this.calculateScore();
+    }
+
+    calculateScore() {
+        let score = this.clusterCount*10;
+        if (this.game.bananaTarget - this.bananaCount > 0) {
+            score += ((this.game.bananaTarget - this.bananaCount) * 20);
+        }
+        return score;
     }
 
     render() {
@@ -135,8 +143,9 @@ class Board {
         this.bubbles[grid.row] = this.bubbles[grid.row] ? this.bubbles[grid.row] : [];
         this.bubbles[grid.row][grid.col] = newBubble;
         this.removeAllMatchingBubbles(grid, newBubble.color);
-        this.clusterCount = 0;
-        this.bananaCount = 0;
+        if (this.clusterCount > 2) {
+            this.removeAllLooseBubbles();
+        }
         this.render();
     }
 
@@ -254,9 +263,6 @@ class Board {
                             this.bubbles[row][col].removed = true;
                         }
                         this.removeAllMatchingBubbles({row, col}, color);
-                        if (this.clusterCount > 2) {
-                            //this.removeAllLooseBubbles();          
-                        }
                     }
                 }
             }
@@ -273,7 +279,10 @@ class Board {
         for (let i = this.bubbles.length - 1; i >= 0; i--) {
             for (let j = 0; j < this.columns; j++) {
                 if (this.bubbles[i] && this.bubbles[i][j] && this.bubbles[i][j].removed === false) {
-                    const bubbleTree = this.findBubbleTree(this.bubbles[i][j].row, this.bubbles[i][j].col);
+                    const bubble = this.bubbles[i][j];
+                    if (!this.foundClusters.includes(`${bubble.row}-${bubble.col}`)) {
+                        this.findBubbleTree(bubble.row, bubble.col);
+                    }
                 }
             }
         }
@@ -284,17 +293,29 @@ class Board {
         let allNodes = [this.bubbles[row][col]];
         let bubbleTree = [];
         let processed = [];
+        let looseBubble = true;
         while (allNodes.length > 0) {
             const currentNode = allNodes.shift();
             if (!processed.includes(currentNode)) {
                 processed.push(currentNode);
-                const adjBubbles = this.getAllAdjacentBubbles(currentNode);
-                this.foundClusters.push(currentNode);
-                allNodes = allNodes.concat(adjBubbles);
+                if (currentNode.row === 0) {
+                    looseBubble = false;
+                }
+                this.foundClusters.push(`${currentNode.row}-${currentNode.col}`);
+                allNodes = allNodes.concat(this.getAllAdjacentBubbles(currentNode));
                 bubbleTree.push(currentNode);
             }
         }
+        if (looseBubble) {
+            this.markLooseBubbles(bubbleTree);
+        }
         return bubbleTree;
+    }
+
+    markLooseBubbles(bubbles) {
+        for(let i=0; i < bubbles.length; i++) {
+            this.bubbles[bubbles[i].row][bubbles[i].col].removed = true;
+        }
     }
 
     selectRandomBubble(rowStart = 0, rowEnd = this.rows, colStart = 0, colEnd = this.columns) {

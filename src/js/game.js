@@ -3,7 +3,6 @@ import Board from './board';
 class Game {
     constructor(ctx, canvas) {
         this.canvas = canvas;
-        this.score = 0;
         this.level = 1;
         this.bananaTarget = 5;
         this.playAngle = null;
@@ -48,6 +47,9 @@ class Game {
         this.board.bubbleShooter = null;
         this.shooterMoving = false;
         this.playAngle = null;
+        this.board.foundClusters = [];
+        this.board.clusterCount = 0;
+        this.board.bananaCount = 0;
     }
 
     drawLevel() {
