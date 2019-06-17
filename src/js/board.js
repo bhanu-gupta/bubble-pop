@@ -22,6 +22,7 @@ class Board {
         this.clusterCount = 0;
         this.tempClusters = [];
         this.foundClusters = [];
+        this.score = 0;
         this.populate();
         window.bubbles = this.bubbles;
     }
@@ -43,7 +44,7 @@ class Board {
 
     loadInitialGame() {
         this.loadBubblesImage();
-        this.drawScore(0);
+        this.drawScore();
         this.drawMoveCount();
     }
 
@@ -104,20 +105,24 @@ class Board {
         document.getElementById("moves-val").innerHTML = this.game.movesAllowed - this.game.currentMoveCount;
     }
 
-    drawScore(score) {
-        document.getElementById("score-val").innerHTML = score != undefined ? score : this.calculateScore();
+    drawScore() {
+        document.getElementById("score-val").innerHTML = this.score;
     }
 
     calculateScore() {
-        let score = this.clusterCount*10;
-        if (this.game.bananaTarget - this.bananaCount > 0) {
-            score += ((this.game.bananaTarget - this.bananaCount) * 20);
+        let score = 0;
+        if (this.clusterCount > 2) {
+            score = this.clusterCount * 10;
+            if ((this.game.bananaTarget - this.bananaCount) > 0) {
+                score += ((this.game.bananaTarget - this.bananaCount) * 20);
+            }
         }
-        return score;
+        this.score += score;
     }
 
     render() {
         this.ctx.clearRect(0, 0, 640, 500);
+        this.calculateScore();
         this.drawBubbles();
         this.drawMoveCount();
         this.drawScore();
@@ -127,26 +132,37 @@ class Board {
         const shooterX = this.bubbleShooter.x;
         const shooterY = this.bubbleShooter.y;
         const allBubbles = this.bubbles.flat();
+        let collision = false;
         for (let i = 0; i < allBubbles.length; i++) {
             if (allBubbles[i].removed === false && this.checkTwoBubblesIntersection(allBubbles[i], { x: shooterX, y: shooterY })) {
-                this.resetBubbles();
-                return true;
+                // debugger
+                collision = true;
+                break;
             }
         }
-        return false;
+        if (collision === true || shooterY === 70) {
+            this.setBubbleShooter();
+            this.resetBubbles();
+        }
+        return collision;
     }
 
     resetBubbles() {
+        this.removeAllMatchingBubbles(this.bubbleShooter);
+        if (this.clusterCount > 2) {
+            this.markRemoved(this.tempClusters);
+            this.removeAllLooseBubbles();
+        }
+        this.render();
+    }
+
+    setBubbleShooter() {
         const grid = this.getClosestValidPosition(this.bubbleShooter);
         const dim = this.bubbleShooter.getBubbleDimensions(grid.row, grid.col);
         const newBubble = new Bubble('bubble', dim.x, dim.y, this.bubbleShooter.color, grid.row, grid.col);
         this.bubbles[grid.row] = this.bubbles[grid.row] ? this.bubbles[grid.row] : [];
         this.bubbles[grid.row][grid.col] = newBubble;
-        this.removeAllMatchingBubbles(grid, newBubble.color);
-        if (this.clusterCount > 2) {
-            this.removeAllLooseBubbles();
-        }
-        this.render();
+        this.bubbleShooter = newBubble;
     }
 
     checkTwoBubblesIntersection(bubble1, bubble2) {
@@ -181,7 +197,7 @@ class Board {
         const col = Math.floor((x - rowOffset) / this.bubbleDiameter);
         let result = { row: row - 1, col };
         if (this.bubbles[row - 1] && this.bubbles[row - 1][col] && this.bubbles[row-1][col].removed === false) {
-            result = this.getOtherPossiblePosition(row-1, col) || result;
+            result = this.getOtherPossiblePosition(row-1, col-1) || result;
         }
         return result;
     }
@@ -201,18 +217,6 @@ class Board {
                 }
             }
         }
-
-        // if (!this.bubbles[row][col - 1] && this.bubbles[row][col - 1].removed === false) { //0,-1
-        //     return {row: row, col: col-1};
-        // } else if (!this.bubbles[row][col + 1] && this.bubbles[row][col + 1].removed === false) {  //0,1
-        //     return { row: row, col: col + 1 };
-        // } else if (!this.bubbles[row + 1][col] && !this.bubbles[row + 1][col].removed === false) { //1,0
-        //     return { row: row+1, col: col };
-        // } else if (!this.bubbles[row + 1][col - 1] && !this.bubbles[row + 1][col - 1].removed === false) { //1,-1
-        //     return { row: row+1, col: col - 1 };
-        // } else if (!this.bubbles[row + 1][col + 1] && !this.bubbles[row + 1][col + 1].removed === false) { //1,1
-        //     return { row: row+1, col: col + 1 };
-        // }
     }
 
     getAllAdjacentBubbles(bubble) {
@@ -233,46 +237,24 @@ class Board {
         return neighbors;
     }
 
-    removeAllMatchingBubbles(grid, color) {
-        const rowType = (grid.row) % 2;
+    removeAllMatchingBubbles(targetBubble) {
+        this.tempClusters.push(targetBubble);
+        this.clusterCount += 1;
+        const rowType = (targetBubble.row) % 2;
         const possibilities = ADJ_DIFFS[rowType];
         for (let i = 0; i < possibilities.length; i++) {
-            const col = grid.col + possibilities[i][0];
-            const row = grid.row + possibilities[i][1];
+            const col = targetBubble.col + possibilities[i][0];
+            const row = targetBubble.row + possibilities[i][1];
             if (col >= 0 && col < this.columns && row >= 0 && row < this.bubbles.length) {
                 if(this.bubbles[row] && this.bubbles[row][col]) {
                     const adjBubble = this.bubbles[row][col];
-                    if ((adjBubble.type === 'banana' || adjBubble.color === color) 
-                        && adjBubble.removed === false && !this.checkObjectinArray(this.tempClusters, {row, col})) {
-                        this.clusterCount += 1;
-                        if (this.clusterCount < 3) {
-                            if (this.bubbles[grid.row][grid.col].removed == false) {
-                                this.clusterCount += 1;
-                                this.tempClusters.push({row: grid.row, col: grid.col});
-                            }
-                            this.tempClusters.push({ row, col});
-                        } else {
-                            if(this.tempClusters.length >= 2) {
-                                for (let i = 0; i< this.tempClusters.length; i++) {
-                                    const clusterGrid = this.tempClusters[i];
-                                    this.bubbles[clusterGrid.row][clusterGrid.col].removed = true;
-                                }
-                                this.tempClusters = [];
-                            }
-                            this.bubbles[grid.row][grid.col].removed = true;
-                            this.bubbles[row][col].removed = true;
-                        }
-                        this.removeAllMatchingBubbles({row, col}, color);
+                    if ((adjBubble.type === 'banana' || (adjBubble.type != 'banana' && adjBubble.color === this.bubbleShooter.color)) 
+                        && adjBubble.removed === false && !this.tempClusters.includes(adjBubble)) {
+                        this.removeAllMatchingBubbles(adjBubble);
                     }
                 }
             }
         }
-    }
-
-    checkObjectinArray(array, obj) {
-        return array.some((val) => {
-            return (val.row === obj.row && val.col === obj.col);
-        })
     }
 
     removeAllLooseBubbles() {
@@ -307,12 +289,12 @@ class Board {
             }
         }
         if (looseBubble) {
-            this.markLooseBubbles(bubbleTree);
+            this.markRemoved(bubbleTree);
         }
         return bubbleTree;
     }
 
-    markLooseBubbles(bubbles) {
+    markRemoved(bubbles) {
         for(let i=0; i < bubbles.length; i++) {
             this.bubbles[bubbles[i].row][bubbles[i].col].removed = true;
         }
@@ -335,7 +317,7 @@ class Board {
 
     placeRandomBananas() {
         for (let i = 0; i < this.game.bananaTarget; i++) {
-            const bananaRow = Math.floor(Math.random() * this.rows);
+            const bananaRow = Math.floor(Math.random() * (this.rows-1));
             const bananaCol = Math.floor(Math.random() * this.columns);
             const banana = new Bubble('banana');
             const dim = banana.getBubbleDimensions(bananaRow, bananaCol);

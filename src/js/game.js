@@ -1,5 +1,8 @@
 import Board from './board';
 
+var rowOffset = 20;
+var colOffset = 70;
+
 class Game {
     constructor(ctx, canvas) {
         this.canvas = canvas;
@@ -37,7 +40,7 @@ class Game {
             alert('Game Over!');
             document.location.reload();
         } else if(this.won) {
-            alert('Congratulations! You Won');
+            alert(`Congratulations! You Won. Your score is ${this.board.score}`);
             document.location.reload();
         }
     }
@@ -50,6 +53,7 @@ class Game {
         this.board.foundClusters = [];
         this.board.clusterCount = 0;
         this.board.bananaCount = 0;
+        this.board.tempClusters = [];
     }
 
     drawLevel() {
@@ -62,25 +66,29 @@ class Game {
         let dx = Math.cos(rads) * speed / 60;
         let dy = Math.sin(rads) * speed / 60;
         var interval = setInterval(() => {
-            if (this.board.bubbleShooter.x + dx <= 0) {
-                this.playAngle = 180 - this.playAngle;
-                dx = -dx;
-            } else if (this.board.bubbleShooter.x + dx + this.board.bubbleDiameter >= this.canvas.width) {
+            const shooter = this.board.bubbleShooter;
+            if ((shooter.x + dx <= 0) || (shooter.x + dx + this.board.bubbleDiameter >= this.canvas.width)) {
                 this.playAngle = 180 - this.playAngle;
                 dx = -dx;
             }
+            let touchTop = false;
+            if ((shooter.y + dy <= colOffset)) {
+                shooter.y = colOffset;
+                dx = 0;
+                dy = 0;
+                touchTop = true;
+            }
             const isCollision = this.board.checkCollision();
-            if (isCollision) {
+            if (isCollision || touchTop) {
                 this.resetAfterCollision();
                 clearInterval(interval);
             } else {
-                this.board.bubbleShooter.clearArc(this.board.ctx);
-                this.board.bubbleShooter.x = this.board.bubbleShooter.x + dx;
-                this.board.bubbleShooter.y = this.board.bubbleShooter.y - dy;
+                shooter.clearArc(this.board.ctx);
+                shooter.x = shooter.x + dx;
+                shooter.y = shooter.y - dy;
             }
             
             this.board.drawBubbleShooter();
-
         }, 1000 / 60);
     }
 
@@ -145,7 +153,6 @@ class Game {
         };
     }
 
-    // Render the angle of the mouse
     drawMouseLine() {
         var centerx = 230 + this.board.bubbleDiameter / 2;
         var centery = 550 + this.board.bubbleDiameter / 2;
