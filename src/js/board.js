@@ -1,4 +1,5 @@
 import Bubble from './bubble';
+import Sound from './sound';
 
 var ADJ_DIFFS = [[[1, 0], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1]],
                         [[1, 0], [1, 1], [0, 1], [-1, 0], [0, -1], [1, -1]]];
@@ -148,6 +149,8 @@ class Board {
     resetBubbles() {
         this.removeAllMatchingBubbles(this.bubbleShooter);
         if (this.clusterCount > 2) {
+            const bubbleSound = new Sound("assets/sounds/pop.mp3");
+            bubbleSound.play();
             this.markRemoved(this.tempClusters);
             this.removeAllLooseBubbles();
         }

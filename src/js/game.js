@@ -1,4 +1,5 @@
 import Board from './board';
+import Sound from './sound';
 
 var colOffset = 70;
 
@@ -47,11 +48,15 @@ class Game {
         const statusBox = document.getElementById('game-status');
         const gameActions = document.getElementById('game-actions');
         let statusChange = false;
-        if (this.gameOver) {    
+        if (this.gameOver) {  
+            const gameOver = new Sound("assets/sounds/game-over.mp3");
+            gameOver.play();  
             gameStatus.innerHTML = "You Lose!";
             statusChange = true;
             gameActions.innerHTML = '<i class="fas fa-sync" id="replay-btn"></i>';
         } else if(this.won) {
+            const gameSound = new Sound("assets/sounds/game-win.mp3");
+            gameSound.play();
             gameStatus.innerHTML = "You Won!";
             finalScore.innerHTML = `Score: ${this.board.score}`;
             statusChange = true;
