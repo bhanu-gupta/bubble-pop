@@ -1,5 +1,7 @@
 #Monkey Bubble Pop
 
+https://bhanu-gupta.github.io/bubble-pop/
+
 * Background and Overview
 
     Monkey Bubble Pop is a fun game which is a clone of the classic bubble shooter game. The player has to help the monkey to catch all the bananas which are trapped inside the bubbles. The player has to shoot a new color bubble in a direction so as to match the color of 2 or more adjacent bubbles in order to pop them and get the bananas.
@@ -66,6 +68,6 @@
     * Hear sound on popping of bubbles
     * Mute the sound
     * Show a nice HTML Canvas as a backdrop in the board matching the theme of the game
-    * Different sound effects for popping bubble and rescuing a monkey
+    * Different sound effects for popping bubble and rescuing a banana
     * Add more levels to the game
 
