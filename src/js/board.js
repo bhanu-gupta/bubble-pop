@@ -3,8 +3,14 @@ import Bubble from './bubble';
 var ADJ_DIFFS = [[[1, 0], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1]],
                         [[1, 0], [1, 1], [0, 1], [-1, 0], [0, -1], [1, -1]]];
 
+var levelColors = {
+    1: ['red', 'green', 'yellow'],
+    2: ['red', 'green', 'yellow', 'orange'],
+    3: ['red', 'green', 'yellow', 'orange', 'blue']
+}
+
 class Board {
-    constructor(game, ctx) {
+    constructor(game, ctx, bananaTarget, movesAllowed) {
         this.bubbles = [];
         this.bubbleShooter = null;
         this.nextShooterBubble = null;
@@ -14,7 +20,6 @@ class Board {
         this.rows = 5;
         this.columns = 11;
         this.bubbleDiameter = 40;
-        this.colors = ['red', 'orange', 'yellow', 'green', 'seagreen', 'blue', 'purple', 'pink'];
         this.bubbleShooterX = 235;
         this.bubbleShooterY = 570;
         this.nextShooterX = 110;
@@ -23,29 +28,18 @@ class Board {
         this.tempClusters = [];
         this.foundClusters = [];
         this.score = 0;
+        this.movesAllowed = movesAllowed || 15;
+        this.bananaTarget = bananaTarget || 5;
+        this.currentMoveCount = 0;
         this.populate();
         window.bubbles = this.bubbles;
     }
 
-    loadBubblesImage() {
-        this.image = new Image();
-        this.image.src = "assets/images/bubbles.png";
-        this.image.sprites = {};
-        const board = this;
-        this.image.onload = () => {
-            for (let i = 0; i < 8; i++) {
-                board.image.sprites[board.colors[i]] = ({ x: i * 42, y: 0, w: 40, h: 40 });
-            }
-            board.drawBubbles();
-            board.drawBubbleShooter();
-            board.game.ready = true;
-        }
-    }
-
-    loadInitialGame() {
-        this.loadBubblesImage();
+    loadGame() {
+        this.calculateScore();
         this.drawScore();
         this.drawMoveCount();
+        this.drawLevel();
     }
 
     populate() {
@@ -71,7 +65,7 @@ class Board {
                         bubble.drawBanana(this.ctx);
                         this.bananaCount += 1;
                     } else {
-                        bubble.draw(this.ctx, this.image);
+                        bubble.draw(this.ctx, this.game.image, levelColors[this.game.level]);
                     }
                 }
             }
@@ -96,36 +90,41 @@ class Board {
                 this.nextShooterX,
                 this.nextShooterY,
                 this.selectRandomBubble(this.rows - 1).color);
-            this.nextShooterBubble.draw(this.ctx, this.image);
+            this.nextShooterBubble.draw(this.ctx, this.game.image);
         }
-        this.bubbleShooter.draw(this.ctx, this.image);
+        this.bubbleShooter.draw(this.ctx, this.game.image);
     }
 
     drawMoveCount() {
-        document.getElementById("moves-val").innerHTML = this.game.movesAllowed - this.game.currentMoveCount;
+        document.getElementById("moves-val").innerHTML = this.movesAllowed - this.currentMoveCount;
     }
 
     drawScore() {
         document.getElementById("score-val").innerHTML = this.score;
     }
 
+    drawLevel() {
+        document.getElementById("level-val").innerHTML = this.game.level;
+    }
+
     calculateScore() {
         let score = 0;
         if (this.clusterCount > 2) {
             score = this.clusterCount * 10;
-            if ((this.game.bananaTarget - this.bananaCount) > 0) {
-                score += ((this.game.bananaTarget - this.bananaCount) * 20);
+            if ((this.bananaTarget - this.bananaCount) > 0) {
+                score += ((this.bananaTarget - this.bananaCount) * 20);
             }
         }
         this.score += score;
     }
 
     render() {
-        this.ctx.clearRect(0, 0, 640, 500);
-        this.calculateScore();
+        this.ctx.clearRect(0, 0, 640, 510);
         this.drawBubbles();
         this.drawMoveCount();
+        this.calculateScore();
         this.drawScore();
+        this.drawLevel();
     }
 
     checkCollision() {
@@ -135,7 +134,6 @@ class Board {
         let collision = false;
         for (let i = 0; i < allBubbles.length; i++) {
             if (allBubbles[i].removed === false && this.checkTwoBubblesIntersection(allBubbles[i], { x: shooterX, y: shooterY })) {
-                // debugger
                 collision = true;
                 break;
             }
@@ -175,20 +173,7 @@ class Board {
         return false;
     }
 
-    // 70 - 1 0
-    //110 - 2 40
-    //150 - 3 80   
-    //190 - 4 120
-    //230 - 5 160
-    //270 - 6 200
-    //260 - 6 
-    //
 
-//70 + 40*row = x
-//0-90 - 1
-//90-130 -2
-//130-170-3
-//170-210 - 4
     getClosestValidPosition(bubble) {
         const x = bubble.x;
         const y = bubble.y;
@@ -316,7 +301,7 @@ class Board {
     }
 
     placeRandomBananas() {
-        for (let i = 0; i < this.game.bananaTarget; i++) {
+        for (let i = 0; i < this.bananaTarget; i++) {
             const bananaRow = Math.floor(Math.random() * (this.rows-1));
             const bananaCol = Math.floor(Math.random() * this.columns);
             const banana = new Bubble('banana');

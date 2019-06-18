@@ -1,26 +1,3 @@
-var level1Colors = [
-    'red',
-    'green',
-    'yellow'
-];
-
-var level2Colors = [
-    '#FFBC00',
-    '#DD4E00',
-    '#00BD00',
-    '#1dd186'
-];
-
-var level3Colors = [
-    '#FFBC00',
-    '#DD4E00',
-    '#00BD00',
-    '#1dd186',
-    '#616a77'
-];
-
-var COLORS = ['red', 'orange', 'yellow', 'green', 'seagreen', 'blue', 'purple', 'pink'];
-
 var diameter = 40;
 var rowOffset = 20;
 var colOffset = 70;
@@ -30,7 +7,7 @@ class Bubble {
     constructor(type, x, y, color, row, col) {
         this.removed = false;
         this.type = type;
-        this.color = color || this.getRandomColour();
+        this.color = color || null;
         this.x = x;
         this.y = y;
         this.row = row;
@@ -46,8 +23,9 @@ class Bubble {
         return {x: bubbleX, y:bubbleY};
     }
 
-    draw(ctx, bubbleSprite) {
+    draw(ctx, bubbleSprite, colors) {
         ctx.beginPath();
+        this.color = this.color || this.getRandomColour(colors);
         const spr = bubbleSprite.sprites[this.color];
         const w = spr.w;
         const h = spr.h;
@@ -59,8 +37,8 @@ class Bubble {
         this.removed = true;
     }
 
-    getRandomColour() {
-        return level1Colors[Math.floor(Math.random() * level1Colors.length)];
+    getRandomColour(colors) {
+        return colors[Math.floor(Math.random() * colors.length)];
     }
 
     clearArc(ctx) {

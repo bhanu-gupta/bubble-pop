@@ -6,6 +6,8 @@
     <title>Monkey Bubble Pop</title>
     <script src="./dist/bundle.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Bungee&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+        integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <link rel='stylesheet' href='./src/css/board.css' />
 </head>
 <body>
@@ -21,8 +23,9 @@
             </div>
             <div class="level text-bg">
                 <span>Level:</span>
-                <span id="level-val" class="text-val">1</span>
+                <span id="level-val" class="text-val"></span>
             </div>
+            <h1 class="game-heading">Monkey Bubble Pop</h1>
             <div class="next-shooter text-bg">
                 <span>Next:</span>
             </div>
@@ -30,10 +33,21 @@
                 <span>Moves Left: </span>
                 <span id="moves-val" class="text-val">0</span>
             </div>
+            <div class="instructions text-box" id="instructions">
+                <h1>Instructions:</h1>
+                <span>My bananas are trapped inside the bubbles.</span>
+                <span>Place the mouse at an angle to shoot the bubbles in order to make a group of 3 or more bubbles of matching color.</span>
+                <span>Pop the bubbles to catch all the bananas.</span>
+                <span>Click on 'Play' to begin the game.</span>
+                <button id="play">Play</button>
+            </div>
+            <div id="game-status" class="game-status text-box">
+                <h1 id="game-status-heading"></h1>
+                <div id="final-score" class="final-score"></div> 
+                <div class="game-actions" id="game-actions">
+                </div>
+            </div>
         </div>
-        <!-- <div class="instructions">
-            <h1>How to Play:</h1>
-        </div> -->
     </div>
 </body>
 

@@ -1,23 +1,29 @@
 import Board from './board';
 
-var rowOffset = 20;
 var colOffset = 70;
+
+var levelSettings = {
+    1: { bananaTarget: 5, movesAllowed: 15 },
+    2: { bananaTarget: 7, movesAllowed: 20 },
+    3: { bananaTarget: 9, movesAllowed: 25 }
+}
+
+var allColors = ['red', 'orange', 'yellow', 'green', 'seagreen', 'blue', 'purple', 'pink'];
 
 class Game {
     constructor(ctx, canvas) {
         this.canvas = canvas;
         this.level = 1;
-        this.bananaTarget = 5;
         this.playAngle = null;
         this.ready = false;
-        this.currentMoveCount = 0;
-        this.movesAllowed = 15;
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseDown = this.onMouseDown.bind(this);
         this.shooterMoving = false;
         this.gameOver = false;
         this.won = false;
+        this.ctx = ctx;
         this.board = new Board(this, ctx);
+        this.disabled = true;
     }
 
     play() {
@@ -27,7 +33,7 @@ class Game {
     setGameStatus() {
         if(this.board.bananaCount === 0) {
             this.won = true;
-        } else if (this.currentMoveCount >= this.movesAllowed) {
+        } else if (this.board.currentMoveCount >= this.board.movesAllowed) {
             this.gameOver = true;
         } else if (this.board.bubbles.length >=11) {
             this.gameOver = true;
@@ -36,12 +42,38 @@ class Game {
     }
 
     alertGameStatus() {
-        if (this.gameOver) {
-            alert('Game Over!');
-            document.location.reload();
+        const gameStatus = document.getElementById('game-status-heading');
+        const finalScore = document.getElementById('final-score');
+        const statusBox = document.getElementById('game-status');
+        const gameActions = document.getElementById('game-actions');
+        let statusChange = false;
+        if (this.gameOver) {    
+            gameStatus.innerHTML = "You Lose!";
+            statusChange = true;
+            gameActions.innerHTML = '<i class="fas fa-sync" id="replay-btn"></i>';
         } else if(this.won) {
-            alert(`Congratulations! You Won. Your score is ${this.board.score}`);
-            document.location.reload();
+            gameStatus.innerHTML = "You Won!";
+            finalScore.innerHTML = `Score: ${this.board.score}`;
+            statusChange = true;
+            if (this.level < 3) {
+                gameActions.innerHTML = '<i class="fas fa-sync" id="replay-btn"></i><i class="fas fa-forward" id="next-level"></i>';
+            }
+        }
+        if (statusChange === true) {
+            const replayBtn = document.getElementById('replay-btn');
+            const nextLevelBtn = document.getElementById('next-level');
+            if (replayBtn) {
+                replayBtn.onclick = () => this.loadLevel();
+            }
+            if (nextLevelBtn) {
+                nextLevelBtn.onclick = () => this.loadNextLevel();
+            }
+            this.disabled = true;
+            statusBox.style.visibility = 'visible';
+        } else {
+            gameActions.innerHTML = "";
+            gameStatus.innerHTML = "";
+            finalScore.innerHTML = "";
         }
     }
 
@@ -54,10 +86,6 @@ class Game {
         this.board.clusterCount = 0;
         this.board.bananaCount = 0;
         this.board.tempClusters = [];
-    }
-
-    drawLevel() {
-
     }
 
     makeMove() {
@@ -93,7 +121,8 @@ class Game {
     }
 
     start() {
-        this.board.loadInitialGame();
+        this.loadBubblesImage();
+        this.board.loadGame();
     }
 
     radToDeg(angle) {
@@ -105,7 +134,7 @@ class Game {
     }
 
     onMouseMove(e) {
-        if (this.shooterMoving === false) {
+        if (this.disabled === false && this.shooterMoving === false) {
             const pos = this.getMousePos(this.canvas, e);
             let mouseangle = this.radToDeg(
                 Math.atan2(
@@ -133,13 +162,10 @@ class Game {
     }
 
     onMouseDown(e) {
-        if (this.playAngle && this.shooterMoving ===  false) {
-            if(this.gameOver) {
-                this.loadNewGame();
-            }
+        if (this.disabled === false && this.playAngle && this.shooterMoving === false) {
             if (this.ready) { 
                 this.shooterMoving = true;
-                this.currentMoveCount += 1;
+                this.board.currentMoveCount += 1;
                 this.play();
             }
         }
@@ -167,6 +193,37 @@ class Game {
             centerx + 2 * this.board.bubbleDiameter * Math.cos(this.degToRad(this.playAngle)),
             centery - 2 * this.board.bubbleDiameter * Math.sin(this.degToRad(this.playAngle)));
         ctx.stroke();
+    }
+
+    loadNextLevel() {
+        this.level += 1;
+        this.loadLevel();
+    }
+
+    loadLevel() {
+        this.board = new Board(this, this.ctx, levelSettings[this.level].bananaTarget, levelSettings[this.level].movesAllowed);
+        this.board.render();
+        this.board.drawBubbleShooter();
+        const statusBox = document.getElementById('game-status');
+        statusBox.style.visibility = "hidden";
+        this.disabled = false;
+        this.won = false;
+        this.gameOver = false;
+    }
+
+    loadBubblesImage() {
+        this.image = new Image();
+        this.image.src = "assets/images/bubbles.png";
+        this.image.sprites = {};
+        const game = this;
+        this.image.onload = () => {
+            for (let i = 0; i < 8; i++) {
+                game.image.sprites[allColors[i]] = ({ x: i * 42, y: 0, w: 40, h: 40 });
+            }
+            game.board.drawBubbles();
+            game.board.drawBubbleShooter();
+            game.ready = true;
+        }
     }
 }
 
