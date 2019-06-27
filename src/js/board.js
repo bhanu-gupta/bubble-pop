@@ -181,9 +181,9 @@ class Board {
         const x = bubble.x;
         const y = bubble.y;
         const row = Math.floor((y) / this.bubbleDiameter);
-        const rowOffset = (row%2 === 1) ? this.bubbleDiameter/2 : 0;
-        const col = Math.floor((x - rowOffset) / this.bubbleDiameter);
-        let result = { row: row - 1, col };
+        const rowOffset = ((row-1)%2 === 1) ? this.bubbleDiameter/2 : 0;
+        const col = Math.floor(((x - rowOffset) > 0 ? (x-rowOffset) : x) / this.bubbleDiameter);
+        let result = { row: row - 1, col: col };
         if (this.bubbles[row - 1] && this.bubbles[row - 1][col] && this.bubbles[row-1][col].removed === false) {
             result = this.getOtherPossiblePosition(row-1, col-1) || result;
         }
@@ -227,7 +227,9 @@ class Board {
 
     removeAllMatchingBubbles(targetBubble) {
         this.tempClusters.push(targetBubble);
-        this.clusterCount += 1;
+        if (targetBubble.type !== 'banana') {
+            this.clusterCount += 1;
+        }
         const rowType = (targetBubble.row) % 2;
         const possibilities = ADJ_DIFFS[rowType];
         for (let i = 0; i < possibilities.length; i++) {

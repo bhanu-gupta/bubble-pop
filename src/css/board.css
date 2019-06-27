@@ -64,6 +64,10 @@ canvas {
     background: url('../../assets/images/monkey.png');
 }
 
+.monkey-shooter.shooting {
+    background-position: right;
+}
+
 .score {
     position: absolute;
     top:10px;

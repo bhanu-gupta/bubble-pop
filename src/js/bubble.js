@@ -57,7 +57,7 @@ class Bubble {
             this.clearArc(ctx);
             const radius = (diameter/2)-1;
             ctx.arc(this.x + radius + 2, this.y + radius + 2, radius, 0, Math.PI * 2, true);
-            ctx.fillStyle = "#70D434";
+            //ctx.fillStyle = "#70D434";
             ctx.fill();
             ctx.drawImage(bananaImg, 0, 0, bananaImg.width, bananaImg.height, this.x + 5, this.y+5, 27, 27);
         };

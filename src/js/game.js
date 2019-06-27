@@ -95,7 +95,7 @@ class Game {
 
     makeMove() {
         const rads = this.degToRad(this.playAngle);
-        const speed = 500;
+        const speed = 600;
         let dx = Math.cos(rads) * speed / 60;
         let dy = Math.sin(rads) * speed / 60;
         var interval = setInterval(() => {
@@ -114,6 +114,7 @@ class Game {
             const isCollision = this.board.checkCollision();
             if (isCollision || touchTop) {
                 this.resetAfterCollision();
+                this.getMonkeyReady();
                 clearInterval(interval);
             } else {
                 shooter.clearArc(this.board.ctx);
@@ -123,6 +124,16 @@ class Game {
             
             this.board.drawBubbleShooter();
         }, 1000 / 60);
+    }
+
+    letMonkeyShoot() {
+        const monkeyID = document.getElementById('monkey-shooter');
+        monkeyID.className="monkey-shooter shooting";
+    }
+
+    getMonkeyReady() {
+        const monkeyID = document.getElementById('monkey-shooter');
+        monkeyID.className = "monkey-shooter";
     }
 
     start() {
@@ -168,7 +179,8 @@ class Game {
 
     onMouseDown(e) {
         if (this.disabled === false && this.playAngle && this.shooterMoving === false) {
-            if (this.ready) { 
+            if (this.ready) {
+                this.letMonkeyShoot(); 
                 this.shooterMoving = true;
                 this.board.currentMoveCount += 1;
                 this.play();
