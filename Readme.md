@@ -4,7 +4,7 @@ https://bhanu-gupta.github.io/bubble-pop/
 
 * Background and Overview
 
-    Monkey Bubble Pop is a fun game which is a clone of the classic bubble shooter game. The player has to help the monkey to catch all the bananas which are trapped inside the bubbles. The player has to shoot a new color bubble in a direction so as to match the color of 2 or more adjacent bubbles in order to pop them and get the bananas.
+    It is a fun, multi-level game, in which users must help their monkey friend retrieve bananas that have been trapped in bubbles. The player has to shoot a new color bubble in a direction so as to match the color of 2 or more adjacent bubbles in order to pop them and catch the bananas.
 
     There are 3 levels to this game. The first level is easy as the shooter bubble will match the color of the bubbles at the lowest level so as to easily pop them. The next level will be a little harder as the shooter bubble will not necessarily match the bubbles at the lowest level but the color will match the color of bubbles which are shown in the board. The third level is even harder as the board generated will not have many adjacent bubbles of same color.
 
@@ -12,19 +12,22 @@ https://bhanu-gupta.github.io/bubble-pop/
 
     The users will be able to
 
-    * Shoot the bubble to match and pop matching color bubbles
+    * View the game instructions on opening the game
     * See the number of moves allowed at every level
     * See the target number of bananas to be catched
+
+        ![New game](assets/images/instructions.png)
+    * Shoot the bubble to match and pop matching color bubbles
     * Able to see the next shooter bubble in the queue
+    * When a group of bubbles is popped, any floating bubbles should pop as well.
+
+        ![Game Board](assets/images/board.png)
+    
     * Receive an alert if the game is over
-    * Receive an alert if the player has moved to the next level
+    * The game is over if the player shoots the bubbles in a way that the lowest level bubble reaches the bottom of the board or the number of moves has exceeded the number of allowed moves.
 
-    * When a group of bubbles is popped, the loose bubbles below that group should pop as well.
-    * The game is over if the player shoots the bubbles in a way that the lowest level bubble reaches the bottom of the board       or the number of moves has exceeded the number of allowed moves.
+        ![Game Status](assets/images/status.png)
 
-* Wireframes
-
-    ![alt text](assets/images/wireframe.png)
 
 * Architecture and Technology
 
@@ -35,7 +38,7 @@ https://bhanu-gupta.github.io/bubble-pop/
 
     * board.js 
         * generateRandomBoard by Level
-        * Place bananas 
+        * Place bananas at random locations
     * bubble.js
         * Have information about all the bubbles - color, position on the board, type of bubble
     * game.js
@@ -65,9 +68,7 @@ https://bhanu-gupta.github.io/bubble-pop/
 
 * Bonus Features
 
-    * Hear sound on popping of bubbles
-    * Mute the sound
-    * Show a nice HTML Canvas as a backdrop in the board matching the theme of the game
-    * Different sound effects for popping bubble and rescuing a banana
-    * Add more levels to the game
+    * Add animation effect for popping of bubbles
+    * Float rescued bananas at the bottom
+    * Add more levels to the game and make each level more complicated
 
